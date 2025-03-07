@@ -1,5 +1,9 @@
+MESSAGE = "hello world"
+
+
 def foo() -> str:
-    return "hello world"
+    """Example function."""
+    return MESSAGE
 
 
 if __name__ == '__main__':

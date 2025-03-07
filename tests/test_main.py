@@ -9,6 +9,7 @@ def setup_data():
 
 
 def test_foo(setup_data):
+    """Test function."""
     result = foo()
     assert result == setup_data
 
