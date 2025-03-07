@@ -223,7 +223,7 @@ jobs:
           load: true
           push: true
           # Явно указываем тег образа
-          tags: "docker.io/fakusima/user_service:sha-${{ steps.meta.outputs.version }}"
+          tags: "docker.io/fakusima/user_service:${{ steps.meta.outputs.version }}"
           # Задаём метки (labels) для образа
           labels: |
             org.opencontainers.image.title=user_service
@@ -234,6 +234,9 @@ jobs:
           cache-from: type=registry,ref=docker.io/fakusima/user_service:latest
           # Используем inline-кэширование для cache-to
           cache-to: type=inline
+
+      - name: List local Docker images
+        run: docker images
 
       - name: Analyze image efficiency
         uses: MartinHeinz/dive-action@v0.1.3
