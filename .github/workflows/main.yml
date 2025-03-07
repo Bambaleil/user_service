@@ -9,7 +9,7 @@ on: [push]
 
 jobs:
   call-ci:
-    uses: ./.github/workflows/user_server-pipeline.yml@main
+    uses: user_server-pipeline.yml@main
     with:
       PYTHON_VERSION: "3.10"
       DEPENDENCY_MANAGER: "poetry"
