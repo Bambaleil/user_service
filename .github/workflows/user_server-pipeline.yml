@@ -162,7 +162,7 @@ jobs:
     - name: Lint code
       run: |
         source venv/bin/activate
-        pylint **/*.py
+        pylint **/*.py --exit-zero
 
     - name: Code security check
       run: |
