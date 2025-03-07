@@ -114,7 +114,7 @@ jobs:
     - name: Get cache metadata
       id: cache-meta
       run: |
-        CACHE_KEY="venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-$(hashFiles '**/poetry.lock')"
+        CACHE_KEY="venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}"
         CACHE_PATH="./venv"
         echo "cache-key=${CACHE_KEY}" >> $GITHUB_OUTPUT
         echo "cache-path=${CACHE_PATH}" >> $GITHUB_OUTPUT
