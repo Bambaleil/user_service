@@ -217,6 +217,7 @@ jobs:
             type=sha
 
       - name: Build image
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -234,6 +235,10 @@ jobs:
           cache-from: type=registry,ref=docker.io/fakusima/user_service:latest
           # Используем inline-кэширование для cache-to
           cache-to: type=inline
+
+      - name: Extract image digest
+        id: digest
+        run: echo "DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' docker.io/fakusima/user_service:${{ steps.meta.outputs.version }} | cut -d'@' -f2)" >> $GITHUB_OUTPUT
 
       - name: List local Docker images
         run: docker images
@@ -264,7 +269,7 @@ jobs:
       - name: Sign the published Docker image
         env:
           COSIGN_EXPERIMENTAL: "true"
-        run: cosign sign docker.io/fakusima/user_service:${{ steps.meta.outputs.version }} # cosign sign ${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:${{ steps.meta.outputs.version }}
+        run: cosign sign --yes docker.io/fakusima/user_service@${{ steps.digest.outputs.DIGEST }} # Используем диджест для подписи
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
