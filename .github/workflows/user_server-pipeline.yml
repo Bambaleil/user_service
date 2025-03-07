@@ -216,15 +216,28 @@ jobs:
             type=ref,event=tag
             type=sha
 
+      - name: Debug image reference
+        run:
+          echo "Image ref: ${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:latest"
+
+
       - name: Build image
         uses: docker/build-push-action@v6
         with:
           context: .
           load: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:latest
-          cache-to: type=registry,ref=${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:latest,mode=max
+          # Явно указываем теги Docker-образа, например, используя переменную версии, полученную из шага метаданных.
+          tags: "docker.io/fakusima/user_service:sha-${{ steps.meta.outputs.version }}"
+          # Явно указываем метки (labels) для образа.
+          labels: |
+            org.opencontainers.image.title=user_service
+            org.opencontainers.image.version=sha-${{ steps.meta.outputs.version }}
+            org.opencontainers.image.source=https://github.com/fakusima/user_service
+            org.opencontainers.image.url=https://github.com/fakusima/user_service
+          # Явно задаём cache-from как образ с тегом latest
+          cache-from: type=registry,ref="docker.io/fakusima/user_service:latest"
+          # Используем inline-кэширование для cache-to
+          cache-to: type=inline
 
       - name: Analyze image efficiency
         uses: MartinHeinz/dive-action@v0.1.0
