@@ -126,13 +126,19 @@ jobs:
     - name: Get cache metadata
       id: cache-meta
       run: |
-        [ "${{ inputs.DEPENDENCY_MANAGER }}" = "poetry" ]; then
+        if [ "${{ inputs.DEPENDENCY_MANAGER }}" = "pip" ]; then
+          CACHE_KEY="venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-$(hashFiles '**/requirements.txt')"
+          CACHE_PATH=$(pip cache dir)
+        elif [ "${{ inputs.DEPENDENCY_MANAGER }}" = "poetry" ]; then
           CACHE_KEY="venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-$(hashFiles '**/poetry.lock')"
+          CACHE_PATH="./venv"
+        elif [ "${{ inputs.DEPENDENCY_MANAGER }}" = "pipenv" ]; then
+          CACHE_KEY="venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-$(hashFiles '**/Pipfile.lock')"
           CACHE_PATH="./venv"
         fi
         echo "cache-key=${CACHE_KEY}" >> $GITHUB_OUTPUT
         echo "cache-path=${CACHE_PATH}" >> $GITHUB_OUTPUT
-        
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       if: ${{ inputs.DEPENDENCY_MANAGER == 'poetry' }}
