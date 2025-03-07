@@ -235,6 +235,9 @@ jobs:
       - name: Extract image digest
         id: digest
         run: |
+          # Проверяем, что образ доступен в реестре
+          docker pull docker.io/fakusima/user_service:${{ steps.meta.outputs.version }}
+          # Извлекаем диджест
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' docker.io/fakusima/user_service:${{ steps.meta.outputs.version }} | cut -d'@' -f2)
           echo "DIGEST=${DIGEST}" >> $GITHUB_OUTPUT
 
