@@ -61,12 +61,12 @@ on:
       # ______________________________
 
       CONTAINER_REGISTRY:
-        required: false
+        required: true
         type: string
         default: "docker.io"
 
       CONTAINER_REPOSITORY:
-        required: false
+        required: true
         type: string
         default: "fakusima/user_service"
 
@@ -75,19 +75,19 @@ on:
     secrets:
       CONTAINER_REGISTRY_USERNAME:
         description: 'Username for container registry'
-        required: false
+        required: true
       CONTAINER_REGISTRY_PASSWORD:
         description: 'Password for container registry'
-        required: false
+        required: true
       SONAR_TOKEN:
         description: 'SonarCloud project token'
-        required: false
+        required: true
       CC_TEST_REPORTER_ID:
         description: 'CodeClimate Test Reported ID'
-        required: false
+        required: true
       SLACK_WEBHOOK:
         description: 'Slack webhook URL'
-        required: false
+        required: true
 
     # ______________________________
 
