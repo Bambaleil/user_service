@@ -221,23 +221,25 @@ jobs:
         with:
           context: .
           load: true
-          # Явно указываем теги Docker-образа, например, используя переменную версии, полученную из шага метаданных.
+          push: true
+          # Явно указываем тег образа
           tags: "docker.io/fakusima/user_service:sha-${{ steps.meta.outputs.version }}"
-          # Явно указываем метки (labels) для образа.
+          # Задаём метки (labels) для образа
           labels: |
             org.opencontainers.image.title=user_service
             org.opencontainers.image.version=sha-${{ steps.meta.outputs.version }}
             org.opencontainers.image.source=https://github.com/fakusima/user_service
             org.opencontainers.image.url=https://github.com/fakusima/user_service
-          # Явно задаём cache-from как образ с тегом latest
-          cache-from: type=registry,ref=docker.io/***/user_service:latest
+          # Кэширование: используем существующий образ с тегом latest
+          cache-from: type=registry,ref=docker.io/fakusima/user_service:latest
           # Используем inline-кэширование для cache-to
           cache-to: type=inline
 
       - name: Analyze image efficiency
         uses: MartinHeinz/dive-action@v0.1.0
         with:
-          image: 'docker.io/fakusima/user_service:${{ steps.meta.outputs.version }}'  # '${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:${{ steps.meta.outputs.version }}'
+          # Указываем образ, который только что собрали
+          image: "docker.io/fakusima/user_service:sha-${{ steps.meta.outputs.version }}" # '${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:${{ steps.meta.outputs.version }}'
 
 
       - name: Trivy vulnerability scan
