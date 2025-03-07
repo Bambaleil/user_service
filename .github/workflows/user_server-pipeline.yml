@@ -80,7 +80,7 @@ on:
       CONTAINER_REPOSITORY:
         required: false
         type: string
-        default: ""
+        default: "fakusima/user_service"
 
       # ______________________________
 
