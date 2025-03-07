@@ -7,61 +7,52 @@ on:
   workflow_dispatch:
     inputs:
       PYTHON_VERSION:
+        description: "Python version"
         required: false
         type: string
         default: "3.10"
-
       ENABLE_SONAR:
+        description: "Enable SonarCloud scanning"
         required: false
         type: boolean
         default: false
-
-      ENABLE_CODE_CLIMATE:
-        required: false
-        type: boolean
-        default: false
-
       ENABLE_SLACK:
+        description: "Enable Slack notifications"
         required: false
         type: boolean
         default: false
-
       ENFORCE_PYLINT:
+        description: "Enforce Pylint linting"
         required: false
         type: boolean
         default: true
-
       ENFORCE_BLACK:
+        description: "Enforce Black formatting"
         required: false
         type: boolean
         default: true
-
       ENFORCE_FLAKE8:
+        description: "Enforce Flake8 linting"
         required: false
         type: boolean
         default: true
-
       ENFORCE_DIVE:
+        description: "Enforce Dive analysis"
         required: false
         type: boolean
         default: true
-
       ENFORCE_BANDIT:
+        description: "Enforce Bandit security checks"
         required: false
         type: boolean
         default: true
-
-      DIVE_CONFIG:
-        required: false
-        type: string
-        default: ""
-
       CONTAINER_REGISTRY:
+        description: "Docker registry (e.g. docker.io)"
         required: true
         type: string
         default: "docker.io"
-
       CONTAINER_REPOSITORY:
+        description: "Docker repository (e.g. fakusima/user_service)"
         required: true
         type: string
         default: "fakusima/user_service"
@@ -85,4 +76,101 @@ jobs:
           python-version: ${{ inputs.PYTHON_VERSION }}
 
       - name: Install Poetry
-        uses: snok/install-poetry@
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
+          virtualenvs-in-project: true
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: poetry-${{ runner.os }}-${{ inputs.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m venv venv
+          source venv/bin/activate
+          pip install pylint flake8 bandit pytest pytest-cov
+          poetry install --no-root
+
+      - name: Run Tests
+        run: |
+          source venv/bin/activate
+          pytest
+
+      - name: Verify code style (Black)
+        if: ${{ inputs.ENFORCE_BLACK }}
+        uses: psf/black@stable
+        with:
+          options: "--verbose --check"
+
+      - name: Enforce code style (Flake8)
+        if: ${{ inputs.ENFORCE_FLAKE8 }}
+        run: |
+          source venv/bin/activate
+          flake8 . --exclude ./venv
+
+      - name: Lint code (Pylint)
+        if: ${{ inputs.ENFORCE_PYLINT }}
+        run: |
+          source venv/bin/activate
+          pylint **/*.py --exit-zero
+
+      - name: Code security check (Bandit)
+        if: ${{ inputs.ENFORCE_BANDIT }}
+        run: |
+          source venv/bin/activate
+          bandit -r . --exclude ./venv,./tests
+
+      - name: SonarCloud scanner
+        if: ${{ inputs.ENABLE_SONAR }}
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Docker Login
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ inputs.CONTAINER_REGISTRY }}
+          username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
+
+      - name: Docker Metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ inputs.CONTAINER_REGISTRY }}/${{ inputs.CONTAINER_REPOSITORY }}
+
+      - name: Docker Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@main
+
+      - name: Sign Docker image
+        run: |
+          cosign sign --yes docker.io/${{ inputs.CONTAINER_REPOSITORY }}@${{ steps.meta.outputs.digest }}
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Slack notification
+        if: ${{ always() && inputs.ENABLE_SLACK }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: general
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_TITLE: "Pipeline ${{ job.status }}"
+          SLACK_USERNAME: "GitHub Actions"
