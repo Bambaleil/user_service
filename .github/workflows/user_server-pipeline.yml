@@ -230,7 +230,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/fakusima/user_service
             org.opencontainers.image.url=https://github.com/fakusima/user_service
           # Явно задаём cache-from как образ с тегом latest
-          cache-from: type=registry,ref="docker.io/fakusima/user_service:latest"
+          cache-from: type=registry,ref=docker.io/***/user_service:latest
           # Используем inline-кэширование для cache-to
           cache-to: type=inline
 
