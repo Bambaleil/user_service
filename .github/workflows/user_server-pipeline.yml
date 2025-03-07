@@ -1,7 +1,9 @@
 name: CI Pipeline
 
 on:
-  workflow_call:
+  push:
+    branches:
+      - master
     inputs:
 
       PYTHON_VERSION:
@@ -105,7 +107,7 @@ on:
 
 
 jobs:
-  python-ci:
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
