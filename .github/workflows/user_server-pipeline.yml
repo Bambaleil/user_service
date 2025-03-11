@@ -136,7 +136,6 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@main
 
-
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
@@ -172,7 +171,6 @@ jobs:
 
       - name: Send report to CodeClimate
         uses: paambaati/codeclimate-action@v9.0.0
-        if: ${{ inputs.ENABLE_CODE_CLIMATE }}
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         with:
