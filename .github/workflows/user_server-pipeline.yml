@@ -184,7 +184,7 @@ jobs:
             ${{github.workspace}}/coverage.xml:coverage.py
 
       - name: SonarCloud scanner
-        uses: sonarsource/sonarcloud-github-action@v5.0.0
+        uses: sonarsource/sonarqube-scan-action@v5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -298,8 +298,8 @@ jobs:
           else
             TITLE="Job Cancelled"
           fi
-          echo "::set-output name=message::$MESSAGE"
-          echo "::set-output name=title::$TITLE"
+          echo "message=Job status: ${{ job.status }}" >> $GITHUB_OUTPUT
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
 
       - name: Slack notification
         uses: rtCamp/action-slack-notify@v2
