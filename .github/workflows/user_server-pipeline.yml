@@ -79,6 +79,12 @@ on:
       CONTAINER_REGISTRY_PASSWORD:
         description: 'Password for container registry'
         required: true
+      SONAR_PROJECT_KEY:
+        description: 'SonarCloud project key'
+        required: true
+      SONAR_ORGANIZATON_KEY:
+        description: 'SonarCloud organization key'
+        required: true
       SONAR_TOKEN:
         description: 'SonarCloud project token'
         required: true
@@ -182,6 +188,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATON_KEY }}
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.exclusions=**/venv/**
 
       - name: Get repository accesses
         id: get-repo # REPO="${{ inputs.CONTAINER_REPOSITORY }}"
