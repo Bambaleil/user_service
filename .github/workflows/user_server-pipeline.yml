@@ -236,6 +236,7 @@ jobs:
 
       - name: Analyze local Docker image with Dive
         run: |
+          sudo apt-get update && sudo apt-get install -y ncurses-bin
           docker images
           docker info
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
