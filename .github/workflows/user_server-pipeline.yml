@@ -257,7 +257,7 @@ jobs:
       - name: Analyze image efficiency
         uses: MartinHeinz/dive-action@v0.1.3
         with:
-          image: "${{ steps.meta.outputs.version }}"
+          image: "docker.io/fakusima/user_service:${{ steps.meta.outputs.version }}"
           config: ${{ inputs.DIVE_CONFIG }}
           exit-zero: ${{ !inputs.ENFORCE_DIVE }}
 
