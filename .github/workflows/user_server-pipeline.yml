@@ -1,27 +1,29 @@
 name: CI Pipeline
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
     inputs:
 
       PYTHON_VERSION:
+        description: ''
         required: false
         type: string
         default: "3.10"
 
       ENFORCE_BLACK:
+        description: ''
         required: false
         type: boolean
         default: true
 
       ENFORCE_FLAKE8:
+        description: ''
         required: false
         type: boolean
         default: true
 
       ENFORCE_DIVE:
+        description: ''
         required: false
         type: boolean
         default: true
@@ -29,6 +31,7 @@ on:
       # ______________________________
 
       DIVE_CONFIG:
+        description: ''
         required: false
         type: string
         default: ''
@@ -36,41 +39,42 @@ on:
       # ______________________________
 
       CONTAINER_REGISTRY:
+        description: 'Container registry URL'
         required: true
         type: string
         default: "docker.io"
-
       CONTAINER_REPOSITORY:
+        description: 'Container repository (e.g. fakusima/user_service)'
         required: true
         type: string
         default: "fakusima/user_service"
-
-    # ______________________________
-
-    secrets:
-      CONTAINER_REGISTRY_USERNAME:
-        description: 'Username for container registry'
-        required: true
-      CONTAINER_REGISTRY_PASSWORD:
-        description: 'Password for container registry'
-        required: true
-      SONAR_PROJECT_KEY:
-        description: 'SonarCloud project key'
-        required: true
-      SONAR_ORGANIZATON_KEY:
-        description: 'SonarCloud organization key'
-        required: true
-      SONAR_TOKEN:
-        description: 'SonarCloud project token'
-        required: true
-      CC_TEST_REPORTER_ID:
-        description: 'CodeClimate Test Reported ID'
-        required: true
-      SLACK_WEBHOOK:
-        description: 'Slack webhook URL'
-        required: true
-
-    # ______________________________
+#
+#    # ______________________________
+#
+#    secrets:
+#      CONTAINER_REGISTRY_USERNAME:
+#        description: 'Username for container registry'
+#        required: true
+#      CONTAINER_REGISTRY_PASSWORD:
+#        description: 'Password for container registry'
+#        required: true
+#      SONAR_PROJECT_KEY:
+#        description: 'SonarCloud project key'
+#        required: true
+#      SONAR_ORGANIZATON_KEY:
+#        description: 'SonarCloud organization key'
+#        required: true
+#      SONAR_TOKEN:
+#        description: 'SonarCloud project token'
+#        required: true
+#      CC_TEST_REPORTER_ID:
+#        description: 'CodeClimate Test Reported ID'
+#        required: true
+#      SLACK_WEBHOOK:
+#        description: 'Slack webhook URL'
+#        required: true
+#
+#    # ______________________________
 
 
 jobs:
