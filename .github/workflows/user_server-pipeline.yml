@@ -42,7 +42,7 @@ on:
         description: 'Container registry URL'
         required: true
         type: string
-        default: "docker.io"
+        default: 'ghcr.io'
       CONTAINER_REPOSITORY:
         description: 'Container repository (e.g. fakusima/user_service)'
         required: true
@@ -175,14 +175,24 @@ jobs:
 #            -Dsonar.exclusions=**/venv/**
 
       - name: Get repository accesses
-        id: get-repo # REPO="${{ inputs.CONTAINER_REPOSITORY }}"
+        id: get-repo
         run: |
-          REPO=${{ inputs.CONTAINER_REPOSITORY }}
-          USERNAME=${{ secrets.CONTAINER_REGISTRY_USERNAME }}
-          PASSWORD=${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
-          echo "repo=${REPO}" >> $GITHUB_OUTPUT
-          echo "username=${USERNAME}" >> $GITHUB_OUTPUT
-          echo "password=${PASSWORD}" >> $GITHUB_OUTPUT
+          REPO=""
+          USERNAME=""
+          PASSWORD=""
+          if [ ${{ inputs.CONTAINER_REGISTRY }} = 'ghcr.io' ]; then
+            REPO=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+            USERNAME=${{ github.actor }}
+            PASSWORD=${{ secrets.GITHUB_TOKEN }}
+          else
+            REPO=${{ inputs.CONTAINER_REPOSITORY }}
+            USERNAME=${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+            PASSWORD=${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
+          fi
+  
+          echo "::set-output name=repo::$REPO"
+          echo "::set-output name=username::$USERNAME"
+          echo "::set-output name=password::$PASSWORD"
 
 
       - name: Set up Docker Buildx
