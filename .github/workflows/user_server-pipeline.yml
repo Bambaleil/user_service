@@ -237,11 +237,12 @@ jobs:
       - name: Analyze local Docker image with Dive
         run: |
           sudo apt-get update && sudo apt-get install -y ncurses-bin
+          which infocmp
           docker images
           docker info
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
             wagoodman/dive:latest \
-            ${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:${{ steps.meta.outputs.version }}
+            ${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:${{ steps.meta.outputs.version }} --ci
 #      - name: Analyze image efficiency
 #        uses: MartinHeinz/dive-action@v0.1.3
 #        with:
