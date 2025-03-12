@@ -182,8 +182,8 @@ jobs:
           PASSWORD=""
           if [ ${{ inputs.CONTAINER_REGISTRY }} = 'ghcr.io' ]; then
             REPO=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
-            USERNAME=${{ secrets.CONTAINER_REGISTRY_USERNAME }}
-            PASSWORD=${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
+            USERNAME=${{ github.actor }}
+            PASSWORD=${{ secrets.GITHUB_TOKEN }}
           else
             REPO=${{ inputs.CONTAINER_REPOSITORY }}
             USERNAME=${{ secrets.CONTAINER_REGISTRY_USERNAME }}
@@ -220,16 +220,17 @@ jobs:
         with:
           context: .
           load: true
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:latest
           cache-to: type=registry,ref=${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:latest,mode=max
 
-#      - name: Extract image digest
-#        id: digest
-#        run: |
-#          # Проверяем, что образ доступен в реестре
-#          docker pull docker.io/fakusima/user_service:${{ steps.meta.outputs.version }}
+      - name: Extract image digest
+        id: digest
+        run: |
+          # Проверяем, что образ доступен в реестре
+          docker pull docker.io/fakusima/user_service:${{ steps.meta.outputs.version }}
 #          # Извлекаем диджест
 #          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' docker.io/fakusima/user_service:${{ steps.meta.outputs.version }} | cut -d'@' -f2)
 #          echo "DIGEST=${DIGEST}" >> $GITHUB_OUTPUT
