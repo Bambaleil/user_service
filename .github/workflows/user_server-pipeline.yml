@@ -182,8 +182,8 @@ jobs:
           PASSWORD=""
           if [ ${{ inputs.CONTAINER_REGISTRY }} = 'ghcr.io' ]; then
             REPO=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
-            USERNAME=${{ github.actor }}
-            PASSWORD=${{ secrets.GITHUB_TOKEN }}
+            USERNAME=${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+            PASSWORD=${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
           else
             REPO=${{ inputs.CONTAINER_REPOSITORY }}
             USERNAME=${{ secrets.CONTAINER_REGISTRY_USERNAME }}
