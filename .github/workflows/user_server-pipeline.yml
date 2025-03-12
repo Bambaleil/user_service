@@ -220,33 +220,33 @@ jobs:
         with:
           context: .
           load: true
-          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:latest
           cache-to: type=registry,ref=${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:latest,mode=max
 
-      - name: Extract image digest
-        id: digest
-        run: |
-          # Проверяем, что образ доступен в реестре
-          docker pull ${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:${{ steps.meta.outputs.version }}
+#      - name: Extract image digest
+#        id: digest
+#        run: |
+#          # Проверяем, что образ доступен в реестре
+#          docker pull ${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:${{ steps.meta.outputs.version }}
 #          # Извлекаем диджест
 #          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' docker.io/fakusima/user_service:${{ steps.meta.outputs.version }} | cut -d'@' -f2)
 #          echo "DIGEST=${DIGEST}" >> $GITHUB_OUTPUT
 
-      - name: Check Docker status
-        run: docker info
-
-      - name: List local Docker images
-        run: docker images
-
-      - name: Analyze image efficiency
-        uses: MartinHeinz/dive-action@v0.1.3
-        with:
-          image: '${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:${{ steps.meta.outputs.version }}'
-          config: ${{ inputs.DIVE_CONFIG }}
-          exit-zero: ${{ !inputs.ENFORCE_DIVE }}
+      - name: Analyze local Docker image with Dive
+        run: |
+          docker images
+          docker info
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            wagoodman/dive:latest \
+            ${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:${{ steps.meta.outputs.version }}
+#      - name: Analyze image efficiency
+#        uses: MartinHeinz/dive-action@v0.1.3
+#        with:
+#          image: '${{ inputs.CONTAINER_REGISTRY }}/${{ steps.get-repo.outputs.repo }}:${{ steps.meta.outputs.version }}'
+#          config: ${{ inputs.DIVE_CONFIG }}
+#          exit-zero: ${{ !inputs.ENFORCE_DIVE }}
 
 #      - name: Trivy vulnerability scan
 #        uses: aquasecurity/trivy-action@master
